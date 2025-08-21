@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 async function fetchHealth() {
-  const res = await fetch("http://localhost:8080/health");
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
   if (!res.ok) throw new Error("Erro na API");
   return res.json();
 }
