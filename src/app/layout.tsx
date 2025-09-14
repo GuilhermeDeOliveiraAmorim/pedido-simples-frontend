@@ -2,7 +2,7 @@
 
 import "./globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "sonner";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   const [queryClient] = useState(() => new QueryClient());
 
-  useState(() => {
+  useEffect(() => {
     const localStoragePersister = createAsyncStoragePersister({
       storage: window.localStorage,
     });
@@ -22,9 +22,11 @@ export default function RootLayout({
     persistQueryClient({
       queryClient,
       persister: localStoragePersister,
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: process.env.MAX_AGE_TOKEN
+        ? Number(process.env.MAX_AGE_TOKEN)
+        : undefined,
     });
-  });
+  }, [queryClient]);
 
   return (
     <html lang="en">
