@@ -84,7 +84,6 @@ export default function CadastrarRestaurante() {
       <h1>Cadastrar Restaurante</h1>
 
       {mutation.isPending ? (
-        // skeleton enquanto espera a response
         <div className="space-y-4 mt-4">
           <Skeleton className="h-[36px] w-full rounded-md" />
           <Skeleton className="h-[36px] w-full rounded-md" />
