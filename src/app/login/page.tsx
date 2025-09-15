@@ -42,11 +42,16 @@ export default function LoginForm() {
     e.preventDefault();
     mutation.mutate(form, {
       onSuccess: (data) => {
-        toast.success("Login realizado com sucesso!");
-        console.log("Access token:", data.access_token);
+        toast.success(data.content_message || "Login realizado com sucesso", {
+          description: "Redirecionando...",
+        });
+        localStorage.setItem("access_token", data.access_token);
       },
       onError: (error) => {
-        toast.error(error.message || "Erro ao realizar login");
+        console.log("error:", error);
+        toast.error(error.message, {
+          description: error.message || "Tente novamente mais tarde.",
+        });
       },
     });
   };

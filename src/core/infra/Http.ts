@@ -20,9 +20,13 @@ export interface ProblemDetails {
   instance: string;
 }
 
+export interface ProblemDetailsResponse {
+  errors: ProblemDetails[];
+}
+
 export class ApiError extends Error {
-  constructor(public problem: ProblemDetails) {
-    super(problem.detail);
+  constructor(public problems: ProblemDetails[]) {
+    super(problems.map((p) => p.detail).join("\n"));
     this.name = "ApiError";
   }
 }
@@ -39,7 +43,14 @@ http.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("[HTTP REQUEST ERROR]", error);
+    if (isAxiosError<ProblemDetailsResponse>(error) && error.response?.data) {
+      console.error("[HTTP RESPONSE ERROR]", error.response.data);
+
+      const problems = error.response.data.errors || [];
+      return Promise.reject(new ApiError(problems));
+    }
+
+    console.error("[HTTP ERROR]", error);
     return Promise.reject(error);
   }
 );
@@ -47,10 +58,13 @@ http.interceptors.request.use(
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (isAxiosError<ProblemDetails>(error) && error.response?.data) {
+    if (isAxiosError<ProblemDetailsResponse>(error) && error.response?.data) {
       console.error("[HTTP RESPONSE ERROR]", error.response.data);
-      return Promise.reject(new ApiError(error.response.data));
+
+      const problems = error.response.data.errors || [];
+      return Promise.reject(new ApiError(problems));
     }
+
     console.error("[HTTP ERROR]", error);
     return Promise.reject(error);
   }
