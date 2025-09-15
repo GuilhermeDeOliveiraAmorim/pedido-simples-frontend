@@ -51,13 +51,19 @@ export default function LoginForm() {
         setCookie(null, "user_type", form.user_type, { path: "/" });
 
         queryClient.setQueryData(["access_token"], data.access_token);
+        queryClient.setQueryData(["user_type"], form.user_type);
 
         toast.success(data.content_message || "Login realizado com sucesso", {
           description: "Redirecionando...",
         });
 
-        if (form.user_type === "restaurant") router.push("/restaurantes/");
-        else router.push("/clientes/");
+        if (form.user_type === "restaurant") {
+          router.push("/restaurantes/");
+        } else if (form.user_type === "customer") {
+          router.push("/clientes/");
+        } else {
+          router.push("/login");
+        }
       },
       onError: (error) => {
         console.log("error:", error);
