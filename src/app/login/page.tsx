@@ -7,8 +7,15 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLogin } from "@/core/hooks/useAuth";
 import { LoginInputDto } from "@/core/entities/Auth";
+import { setCookie } from "nookies";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function LoginForm() {
+  const router = useRouter();
+  const mutation = useLogin();
+  const queryClient = useQueryClient();
+
   const [form, setForm] = useState<LoginInputDto>({
     login: {
       email: "",
@@ -16,8 +23,6 @@ export default function LoginForm() {
     },
     user_type: "",
   });
-
-  const mutation = useLogin();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,10 +47,17 @@ export default function LoginForm() {
     e.preventDefault();
     mutation.mutate(form, {
       onSuccess: (data) => {
+        setCookie(null, "access_token", data.access_token, { path: "/" });
+        setCookie(null, "user_type", form.user_type, { path: "/" });
+
+        queryClient.setQueryData(["access_token"], data.access_token);
+
         toast.success(data.content_message || "Login realizado com sucesso", {
           description: "Redirecionando...",
         });
-        localStorage.setItem("access_token", data.access_token);
+
+        if (form.user_type === "restaurant") router.push("/restaurantes/");
+        else router.push("/clientes/");
       },
       onError: (error) => {
         console.log("error:", error);
