@@ -7,17 +7,13 @@ import { HttpAuthRepository } from "./repositories/HttpAuthRepository";
 export function UseCasesFactory() {
   const httpAuthRepository = new HttpAuthRepository(http);
 
-  const loginUseCase = new LoginUseCase(httpAuthRepository);
-  const requestLoginChangeUseCase = new RequestLoginChangeUseCase(
-    httpAuthRepository
-  );
-  const confirmLoginChangeUseCase = new ConfirmLoginChangeUseCase(
-    httpAuthRepository
-  );
+  const auth = {
+    login: new LoginUseCase(httpAuthRepository),
+    requestChange: new RequestLoginChangeUseCase(httpAuthRepository),
+    confirmChange: new ConfirmLoginChangeUseCase(httpAuthRepository),
+  };
 
   return {
-    loginUseCase,
-    requestLoginChangeUseCase,
-    confirmLoginChangeUseCase,
+    auth,
   };
 }

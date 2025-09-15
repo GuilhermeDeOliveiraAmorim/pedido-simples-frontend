@@ -3,7 +3,7 @@ export interface LoginInputDto {
     email: string;
     password: string;
   };
-  user_type: "customer" | "restaurant";
+  user_type: "customer" | "restaurant" | "";
 }
 
 export interface LoginOutputDto {
