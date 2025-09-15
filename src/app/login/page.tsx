@@ -66,7 +66,6 @@ export default function LoginForm() {
         }
       },
       onError: (error) => {
-        console.log("error:", error);
         toast.error(error.message, {
           description: error.message || "Tente novamente mais tarde.",
         });
