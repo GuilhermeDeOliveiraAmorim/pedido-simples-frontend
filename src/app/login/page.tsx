@@ -12,34 +12,21 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function LoginForm() {
+  const initialState: LoginInputDto = {
+    login: { email: "", password: "" },
+    user_type: "",
+  };
   const router = useRouter();
   const mutation = useLogin();
   const queryClient = useQueryClient();
-
-  const [form, setForm] = useState<LoginInputDto>({
-    login: {
-      email: "",
-      password: "",
-    },
-    user_type: "",
-  });
+  const [form, setForm] = useState<LoginInputDto>(initialState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     if (name === "email" || name === "password") {
-      setForm({
-        ...form,
-        login: {
-          ...form.login,
-          [name]: value,
-        },
-      });
+      setForm({ ...form, login: { ...form.login, [name]: value } });
     } else {
-      setForm({
-        ...form,
-        [name]: value,
-      });
+      setForm({ ...form, [name]: value });
     }
   };
 
@@ -56,6 +43,9 @@ export default function LoginForm() {
         toast.success(data.content_message || "Login realizado com sucesso", {
           description: "Redirecionando...",
         });
+
+        // Reseta os campos
+        setForm(initialState);
 
         if (form.user_type === "restaurant") {
           router.push("/restaurantes/");

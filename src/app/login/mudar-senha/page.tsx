@@ -9,33 +9,21 @@ import { RequestLoginChangeInputDto } from "@/core/entities/Auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RequestLoginChangeForm() {
-  const mutation = useRequestLoginChange();
-  const [form, setForm] = useState<RequestLoginChangeInputDto>({
+  const initialState: RequestLoginChangeInputDto = {
     change_type: "password",
-    login: {
-      email: "",
-      password: "",
-    },
+    login: { email: "", password: "" },
     new_value: "",
     user_type: "",
-  });
+  };
+  const mutation = useRequestLoginChange();
+  const [form, setForm] = useState<RequestLoginChangeInputDto>(initialState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     if (name === "email" || name === "password") {
-      setForm({
-        ...form,
-        login: {
-          ...form.login,
-          [name]: value,
-        },
-      });
+      setForm({ ...form, login: { ...form.login, [name]: value } });
     } else {
-      setForm({
-        ...form,
-        [name]: value,
-      });
+      setForm({ ...form, [name]: value });
     }
   };
 
@@ -50,6 +38,7 @@ export default function RequestLoginChangeForm() {
     mutation.mutate(form, {
       onSuccess: (data) => {
         toast.success(data.content_message || "Solicitação enviada!");
+        setForm(initialState);
       },
       onError: (error) => {
         toast.error(error.message, {
