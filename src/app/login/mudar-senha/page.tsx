@@ -1,25 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useRequestLoginChange } from "@/core/hooks/useAuth";
+import { RequestLoginChangeInputDto } from "@/core/entities/Auth";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLogin } from "@/core/hooks/useAuth";
-import { LoginInputDto } from "@/core/entities/Auth";
-import { setCookie } from "nookies";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 
-export default function LoginForm() {
-  const initialState: LoginInputDto = {
+export default function RequestLoginChangeForm() {
+  const initialState: RequestLoginChangeInputDto = {
+    change_type: "password",
     login: { email: "", password: "" },
+    new_value: "",
     user_type: "",
   };
-  const router = useRouter();
-  const mutation = useLogin();
-  const queryClient = useQueryClient();
-  const [form, setForm] = useState<LoginInputDto>(initialState);
+  const mutation = useRequestLoginChange();
+  const [form, setForm] = useState<RequestLoginChangeInputDto>(initialState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,31 +29,21 @@ export default function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.new_value && !form.login.password) {
+      toast.error("Preencha a nova senha");
+      return;
+    }
+
     mutation.mutate(form, {
       onSuccess: (data) => {
-        setCookie(null, "access_token", data.access_token, { path: "/" });
-        setCookie(null, "user_type", form.user_type, { path: "/" });
-
-        queryClient.setQueryData(["access_token"], data.access_token);
-        queryClient.setQueryData(["user_type"], form.user_type);
-
-        toast.success(data.content_message || "Login realizado com sucesso", {
-          description: "Redirecionando...",
-        });
-
+        toast.success(data.content_message || "Solicitação enviada!");
         setForm(initialState);
-
-        if (form.user_type === "restaurant") {
-          router.push("/restaurantes/");
-        } else if (form.user_type === "customer") {
-          router.push("/clientes/");
-        } else {
-          router.push("/login");
-        }
       },
       onError: (error) => {
         toast.error(error.message, {
-          description: error.message || "Tente novamente mais tarde.",
+          description:
+            error.message || "Verifique seus dados e tente novamente",
         });
       },
     });
@@ -64,7 +51,7 @@ export default function LoginForm() {
 
   return (
     <div style={{ maxWidth: 400, margin: "0 auto", padding: 24 }}>
-      <h1>Login</h1>
+      <h1>Mudar Senha</h1>
 
       {mutation.isPending ? (
         <div className="space-y-4 mt-4">
@@ -85,7 +72,7 @@ export default function LoginForm() {
           <Input
             name="email"
             type="email"
-            placeholder="Email"
+            placeholder="E-mail atual"
             value={form.login.email}
             onChange={handleChange}
             required
@@ -93,8 +80,16 @@ export default function LoginForm() {
           <Input
             name="password"
             type="password"
-            placeholder="Senha"
+            placeholder="Senha atual"
             value={form.login.password}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="new_value"
+            type="password"
+            placeholder="Nova senha"
+            value={form.new_value}
             onChange={handleChange}
             required
           />
@@ -106,7 +101,7 @@ export default function LoginForm() {
             required
           />
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Entrando..." : "Entrar"}
+            {mutation.isPending ? "Enviando..." : "Solicitar mudança"}
           </Button>
         </form>
       )}
