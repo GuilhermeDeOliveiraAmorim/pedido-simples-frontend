@@ -30,7 +30,7 @@ export default function RequestLoginChangeForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.new_value && !form.login.password) {
+    if (!form.new_value || !form.login.password) {
       toast.error("Preencha a nova senha");
       return;
     }
