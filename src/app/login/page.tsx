@@ -44,7 +44,6 @@ export default function LoginForm() {
           description: "Redirecionando...",
         });
 
-        // Reseta os campos
         setForm(initialState);
 
         if (form.user_type === "restaurant") {
