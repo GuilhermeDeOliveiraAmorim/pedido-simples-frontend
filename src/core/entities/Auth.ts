@@ -21,7 +21,7 @@ export interface RequestLoginChangeInputDto {
     password: string;
   };
   new_value: string;
-  user_type: "customer" | "restaurant";
+  user_type: "customer" | "restaurant" | "";
 }
 
 export interface RequestLoginChangeOutputDto {
