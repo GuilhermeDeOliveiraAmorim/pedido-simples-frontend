@@ -36,6 +36,7 @@ export interface ConfirmLoginChangeInputDto {
 export interface ConfirmLoginChangeOutputDto {
   id: string;
   name: string;
+  user_type: "customer" | "restaurant";
   access_token: string;
   success_message: string;
   content_message: string;

@@ -7,38 +7,58 @@ import { toast } from "sonner";
 import { useRequestLoginChange } from "@/core/hooks/useAuth";
 import { RequestLoginChangeInputDto } from "@/core/entities/Auth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Check, X } from "lucide-react";
+import { passwordChecks } from "@/lib/utils";
 
 export default function RequestLoginChangeForm() {
-  const initialState: RequestLoginChangeInputDto = {
+  const mutation = useRequestLoginChange();
+  const [form, setForm] = useState<RequestLoginChangeInputDto>({
     change_type: "password",
-    login: { email: "", password: "" },
+    login: {
+      email: "",
+      password: "",
+    },
     new_value: "",
     user_type: "",
-  };
-  const mutation = useRequestLoginChange();
-  const [form, setForm] = useState<RequestLoginChangeInputDto>(initialState);
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
     if (name === "email" || name === "password") {
-      setForm({ ...form, login: { ...form.login, [name]: value } });
+      setForm({
+        ...form,
+        login: {
+          ...form.login,
+          [name]: value,
+        },
+      });
     } else {
-      setForm({ ...form, [name]: value });
+      setForm({
+        ...form,
+        [name]: value,
+      });
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.new_value || !form.login.password) {
-      toast.error("Preencha a nova senha");
+    const allValid = passwordChecks.every((rule) => rule.check(form.new_value));
+    if (!allValid) {
+      toast.error("A nova senha não atende aos requisitos de segurança.");
       return;
     }
 
     mutation.mutate(form, {
       onSuccess: (data) => {
         toast.success(data.content_message || "Solicitação enviada!");
-        setForm(initialState);
+        setForm({
+          change_type: "password",
+          login: { email: "", password: "" },
+          new_value: "",
+          user_type: "",
+        });
       },
       onError: (error) => {
         toast.error(error.message, {
@@ -60,15 +80,7 @@ export default function RequestLoginChangeForm() {
           <Skeleton className="h-[36px] w-full rounded-md" />
         </div>
       ) : (
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            marginTop: 12,
-          }}
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-4">
           <Input
             name="email"
             type="email"
@@ -103,6 +115,27 @@ export default function RequestLoginChangeForm() {
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? "Enviando..." : "Solicitar mudança"}
           </Button>
+
+          {/* checklist visual */}
+          {form.new_value && (
+            <div className="mt-3 space-y-1 text-sm">
+              {passwordChecks.map(({ check, label }) => {
+                const ok = check(form.new_value);
+                return (
+                  <div key={label} className="flex items-center gap-2">
+                    {ok ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <X className="w-4 h-4 text-red-500" />
+                    )}
+                    <span className={ok ? "text-green-600" : "text-red-500"}>
+                      {label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </form>
       )}
     </div>
