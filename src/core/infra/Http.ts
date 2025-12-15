@@ -1,4 +1,5 @@
 import axios from "axios";
+import { parseCookies } from "nookies";
 
 export const http = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -33,7 +34,11 @@ export class ApiError extends Error {
 
 http.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
+    let token: string | undefined;
+    if (typeof window !== "undefined") {
+      const cookies = parseCookies();
+      token = localStorage.getItem("access_token") || cookies.access_token;
+    }
     if (token) {
       config.headers = {
         ...config.headers,

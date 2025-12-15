@@ -24,6 +24,13 @@ export default function ConfirmLoginChangeInner({ token }: { token?: string }) {
         onSuccess: (data) => {
           setCookie(null, "access_token", data.access_token, { path: "/" });
           setCookie(null, "user_type", data.user_type, { path: "/" });
+          setCookie(null, "user_id", data.id, { path: "/" });
+          setCookie(null, "user_name", data.name, { path: "/" });
+
+          // Garante que o interceptor leia o token
+          try {
+            localStorage.setItem("access_token", data.access_token);
+          } catch {}
 
           toast.success(
             data.success_message || "Mudança confirmada com sucesso!",
