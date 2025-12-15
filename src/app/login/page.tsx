@@ -14,7 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function LoginForm() {
   const initialState: LoginInputDto = {
     login: { email: "", password: "" },
-    user_type: "",
+    user_type: "restaurant",
   };
   const router = useRouter();
   const mutation = useLogin();
@@ -95,13 +95,6 @@ export default function LoginForm() {
             type="password"
             placeholder="Senha"
             value={form.login.password}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            name="user_type"
-            placeholder="Tipo de usuário"
-            value={form.user_type}
             onChange={handleChange}
             required
           />
