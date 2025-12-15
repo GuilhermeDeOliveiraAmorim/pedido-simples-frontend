@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import PageLoadingProgress from "@/components/PageLoadingProgress";
+import { getImageUrl } from "@/core/utils/storage";
 
 export default function ProdutosPage() {
   const ready = useAuthGuard("restaurant");
@@ -101,31 +102,22 @@ export default function ProdutosPage() {
                       <p className="text-xs text-gray-500 w-full mb-1">
                         Imagens ({product.pictures.length}):
                       </p>
-                      {product.pictures.map((pic, idx) => {
-                        const imageUrl = pic.startsWith("http")
-                          ? pic
-                          : `${process.env.NEXT_PUBLIC_STORAGE_URL}/${pic}`;
-                        return (
-                          <div
-                            key={idx}
-                            className="w-16 h-16 bg-gray-100 rounded border"
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={imageUrl}
-                              alt={`${product.name} - imagem ${idx + 1}`}
-                              className="w-full h-full object-cover rounded"
-                              onError={(e) => {
-                                console.error(
-                                  "Erro ao carregar imagem:",
-                                  imageUrl
-                                );
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
+                      {product.pictures.map((pic, idx) => (
+                        <div
+                          key={idx}
+                          className="w-16 h-16 bg-gray-100 rounded border"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={getImageUrl(pic)}
+                            alt={`${product.name} - imagem ${idx + 1}`}
+                            className="w-full h-full object-cover rounded"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
