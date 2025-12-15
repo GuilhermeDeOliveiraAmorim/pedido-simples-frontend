@@ -13,6 +13,34 @@ export type CreateProductResponse = {
   id?: string;
 };
 
+export type Product = {
+  id: string;
+  name: string;
+  price: number;
+  pictures?: string[];
+  active: boolean;
+  restaurant_id?: string;
+};
+
+export type GetProductsResponse = {
+  products: Product[];
+  total: number;
+};
+
+export async function getProducts(): Promise<GetProductsResponse> {
+  try {
+    const { data } = await http.get<GetProductsResponse>(
+      `/restaurants/products`
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new Error("Erro ao buscar produtos");
+  }
+}
+
 export async function createProduct(
   payload: CreateProductPayload
 ): Promise<CreateProductResponse> {

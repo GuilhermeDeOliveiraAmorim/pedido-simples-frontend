@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import PageLoadingProgress from "@/components/PageLoadingProgress";
 import { useAuthGuard } from "@/core/hooks/useAuth";
 import { parseCookies } from "nookies";
+import { useQueryClient } from "@tanstack/react-query";
 
 function parsePictures(input: string): string[] | undefined {
   const items = input
@@ -20,6 +21,7 @@ function parsePictures(input: string): string[] | undefined {
 
 export default function CadastrarProdutoSemIdNaUrl() {
   const ready = useAuthGuard("restaurant");
+  const queryClient = useQueryClient();
 
   const [form, setForm] = useState({
     name: "",
@@ -56,6 +58,7 @@ export default function CadastrarProdutoSemIdNaUrl() {
         onSuccess: () => {
           toast.success("Produto criado com sucesso!");
           setForm({ name: "", price: "", picturesText: "" });
+          queryClient.invalidateQueries({ queryKey: ["products"] });
         },
         onError: (err) => {
           toast.error(err.message);
